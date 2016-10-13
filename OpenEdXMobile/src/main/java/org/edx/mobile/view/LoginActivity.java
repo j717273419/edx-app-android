@@ -162,6 +162,19 @@ public class LoginActivity extends PresenterActivity<LoginPresenter, LoginPresen
     }
 
     @Override
+    protected void onResume() {
+        if (!environment.getConfig().isRegistrationEnabled()) {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setHomeButtonEnabled(false);
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setDisplayShowHomeEnabled(false);
+            }
+        }
+        super.onResume();
+    }
+
+    @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
@@ -267,14 +280,6 @@ public class LoginActivity extends PresenterActivity<LoginPresenter, LoginPresen
 
     @Override
     public boolean createOptionsMenu(Menu menu) {
-        if (!environment.getConfig().isRegistrationEnabled()) {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setHomeButtonEnabled(false);
-                actionBar.setDisplayHomeAsUpEnabled(false);
-                actionBar.setDisplayShowHomeEnabled(false);
-            }
-        }
         return false;
     }
 
