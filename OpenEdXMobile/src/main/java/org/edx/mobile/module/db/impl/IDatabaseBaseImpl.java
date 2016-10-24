@@ -50,10 +50,10 @@ class IDatabaseBaseImpl implements Runnable {
      * @param op
      * @return
      */
-    private synchronized <T extends Object> T execute(IDbOperation<?> op) {
+    private synchronized <T> T execute(IDbOperation<T> op) {
         // perform this database operation
         synchronized (helper) {
-            T result = (T) op.requestExecute(helper.getDatabase());
+            T result = op.requestExecute(helper.getDatabase());
 
             return result;
         }
@@ -68,7 +68,7 @@ class IDatabaseBaseImpl implements Runnable {
      *
      * @param operation
      */
-    public synchronized <T extends Object> T enqueue(IDbOperation<?> operation) {
+    public synchronized <T> T enqueue(IDbOperation<T> operation) {
         // execute right away if this operation doesn't have a callback to send back the result
         if (operation.getCallback() == null) {
             return execute(operation);
