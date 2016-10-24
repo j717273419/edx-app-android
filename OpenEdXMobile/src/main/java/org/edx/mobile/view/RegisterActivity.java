@@ -214,8 +214,6 @@ public class RegisterActivity extends BaseFragmentActivity
     }
 
     private void createAccount() {
-        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollview);
-
         boolean hasError = false;
         // prepare query (POST body)
         Bundle parameters = new Bundle();
@@ -227,7 +225,9 @@ public class RegisterActivity extends BaseFragmentActivity
                 }
             } else {
                 if (!hasError) {
-                    showErrorPopup();
+                    // this is the first input field with error,
+                    // so focus on it after showing the popup
+                    showErrorPopup(v.getView());
                 }
                 hasError = true;
             }
@@ -285,13 +285,17 @@ public class RegisterActivity extends BaseFragmentActivity
                             if (key.equalsIgnoreCase(fieldView.getField().getName())) {
                                 List<RegisterResponseFieldError> error = messageBody.get(key);
                                 showErrorOnField(error, fieldView);
-                                fieldErrorShown = true;
+                                if (!fieldErrorShown) {
+                                    // this is the first input field with error,
+                                    // so focus on it after showing the popup
+                                    showErrorPopup(fieldView.getView());
+                                    fieldErrorShown = true;
+                                }
                                 break;
                             }
                         }
                     }
                     if (fieldErrorShown) {
-                        showErrorPopup();
                         // We are showing an error message on a visible form field.
                         return; // Return here to avoid showing the generic error pop-up.
                     }
@@ -319,37 +323,13 @@ public class RegisterActivity extends BaseFragmentActivity
         }
     }
 
-    private void showErrorPopup() {
+    private void showErrorPopup(@NonNull final View errorView) {
         showErrorDialog(getResources().getString(R.string.registration_error_title), getResources().getString(R.string.registration_error_message), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ScrollView scrollView = (ScrollView) findViewById(R.id.scrollview);
-                View firstVisible = getFirstVisibleRegistrationField();
-                if (scrollView!=null && firstVisible!=null) {
-                    scrollToView(scrollView, firstVisible);
-                }
+                scrollToView((ScrollView) findViewById(R.id.scrollview), errorView);
             }
         });
-    }
-
-    @Nullable
-    private View getFirstVisibleRegistrationField() {
-        View view = getFirstVisibleFieldView(requiredFieldsLayout);
-        if (view == null) getFirstVisibleFieldView(optionalFieldsLayout);
-        return view;
-    }
-
-    @Nullable
-    private View getFirstVisibleFieldView(@Nullable LinearLayout layout) {
-        if (layout!=null) {
-            for(int i=0; i<layout.getChildCount(); ++i) {
-                View child=layout.getChildAt(i);
-                if (child!=null && child.getVisibility()==View.VISIBLE)
-                    return child;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -371,7 +351,6 @@ public class RegisterActivity extends BaseFragmentActivity
                 @Override
                 public void run() {
                     scrollView.smoothScrollTo(0, view.getTop());
-                    view.requestFocus();
                 }
             });
         }
